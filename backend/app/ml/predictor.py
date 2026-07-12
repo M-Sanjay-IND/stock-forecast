@@ -27,19 +27,21 @@ class Predictor:
         self.saved_models_dir = saved_models_dir
         self.lookback = lookback
 
-    def predict_with_best_model(
+    def predict(
         self,
         ticker: str,
         df: pd.DataFrame,
         forecast_days: list[int] = None,
+        model_type: Optional[str] = None,
     ) -> dict:
         """
-        Generate predictions using the best available model.
+        Generate predictions using a specific model or the best available.
 
         Args:
             ticker: Stock ticker
             df: Historical price DataFrame
             forecast_days: List of forecast horizons [1, 7, 30]
+            model_type: Optional specific model type to use
 
         Returns:
             dict with predictions, confidence intervals, and metadata
@@ -48,18 +50,23 @@ class Predictor:
             forecast_days = [1, 7, 30]
 
         ticker = ticker.upper()
-        best_model = StockRepository.get_best_model(ticker)
-
-        if best_model is None:
-            return {"error": "No trained models found. Please train models first.", "ticker": ticker}
-
-        model_type = best_model.model_type
-        logger.info("Predicting %s with %s model", ticker, model_type)
-
-        if model_type == "lstm":
-            return self._predict_lstm(ticker, df, forecast_days, best_model)
+        
+        if model_type:
+            model_record = StockRepository.get_trained_model(ticker, model_type)
+            if not model_record:
+                return {"error": f"Model {model_type} not found for {ticker}.", "ticker": ticker}
         else:
-            return self._predict_baseline(ticker, df, forecast_days, best_model)
+            model_record = StockRepository.get_best_model(ticker)
+            if not model_record:
+                return {"error": "No trained models found. Please train models first.", "ticker": ticker}
+
+        actual_model_type = model_record.model_type
+        logger.info("Predicting %s with %s model", ticker, actual_model_type)
+
+        if actual_model_type == "lstm":
+            return self._predict_lstm(ticker, df, forecast_days, model_record)
+        else:
+            return self._predict_baseline(ticker, df, forecast_days, model_record)
 
     def _predict_baseline(
         self,

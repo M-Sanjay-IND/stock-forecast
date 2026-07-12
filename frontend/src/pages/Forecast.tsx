@@ -18,9 +18,15 @@ const Forecast: React.FC = () => {
   const ticker = tickerParam || selectedTicker || 'AAPL';
 
   const [forecast, setForecast] = useState<ForecastResponse | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [training, setTraining] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Reset selected model when ticker changes
+  useEffect(() => {
+    setSelectedModel(undefined);
+  }, [ticker]);
 
   useEffect(() => {
     if (tickerParam) setSelectedTicker(tickerParam);
@@ -31,7 +37,7 @@ const Forecast: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getForecast(ticker);
+        const data = await getForecast(ticker, selectedModel);
         if (data.error) {
           setError(data.error);
         } else {
@@ -44,13 +50,13 @@ const Forecast: React.FC = () => {
       }
     };
     fetchForecast();
-  }, [ticker]);
+  }, [ticker, selectedModel]);
 
   const handleRetrain = async () => {
     setTraining(true);
     try {
       await trainModels(ticker);
-      const data = await getForecast(ticker);
+      const data = await getForecast(ticker, selectedModel);
       setForecast(data);
     } catch (err: any) {
       setError(err.message);
@@ -187,8 +193,13 @@ const Forecast: React.FC = () => {
                 {forecast.all_models.map((m) => (
                   <tr
                     key={m.model_type}
+                    onClick={() => {
+                      if (m.model_type !== forecast.model_type) {
+                        setSelectedModel(m.model_type);
+                      }
+                    }}
                     className={cn(
-                      'border-b border-border/50 hover:bg-accent/30 transition-colors',
+                      'border-b border-border/50 hover:bg-accent/30 transition-colors cursor-pointer',
                       m.model_type === forecast.model_type && 'bg-primary/5'
                     )}
                   >

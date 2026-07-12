@@ -24,7 +24,7 @@ class ForecastService:
     """Orchestrates the full forecast workflow."""
 
     @staticmethod
-    def get_forecast(ticker: str) -> dict:
+    def get_forecast(ticker: str, model_type: str = None) -> dict:
         """
         Get a forecast for a ticker. Trains models if needed.
         """
@@ -60,7 +60,7 @@ class ForecastService:
 
         # Step 3: Generate predictions
         predictor = Predictor(saved_dir, lookback=lookback)
-        forecast = predictor.predict_with_best_model(ticker, df)
+        forecast = predictor.predict(ticker, df, model_type=model_type)
 
         # Step 4: Add model comparison data
         all_metrics = manager.get_all_metrics(ticker)

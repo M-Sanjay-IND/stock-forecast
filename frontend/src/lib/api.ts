@@ -68,8 +68,9 @@ export const getAnalytics = async (
 };
 
 // --- Forecast ---
-export const getForecast = async (ticker: string): Promise<ForecastResponse> => {
-  const { data } = await api.get(`/forecast/${ticker}`);
+export const getForecast = async (ticker: string, model?: string): Promise<ForecastResponse> => {
+  const url = model ? `/forecast/${ticker}?model=${model}` : `/forecast/${ticker}`;
+  const { data } = await api.get(url);
   return data;
 };
 

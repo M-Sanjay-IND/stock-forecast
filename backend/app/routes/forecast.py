@@ -16,8 +16,10 @@ forecast_bp = Blueprint("forecast", __name__)
 @forecast_bp.route("/forecast/<ticker>", methods=["GET"])
 def get_forecast(ticker: str):
     """Get price forecast for a stock."""
+    from flask import request
     try:
-        result = ForecastService.get_forecast(ticker)
+        model_type = request.args.get("model")
+        result = ForecastService.get_forecast(ticker, model_type=model_type)
 
         if "error" in result:
             return jsonify(result), 400
