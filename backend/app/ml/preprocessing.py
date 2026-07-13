@@ -8,7 +8,8 @@ for both traditional ML and LSTM models.
 import logging
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler, RobustScaler
+from sklearn.preprocessing import RobustScaler, MinMaxScaler
+from sklearn.model_selection import train_test_split
 from typing import Tuple
 
 logger = logging.getLogger("stockvision.ml.preprocessing")
@@ -20,7 +21,8 @@ def split_data(
     test_ratio: float = 0.2,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-    Split data into train/test sets (chronological, no shuffle).
+    Split data into train/test sets using random shuffling to allow
+    models to interpolate across all historical price ranges.
 
     Returns:
         X_train, X_test, y_train, y_test
@@ -29,12 +31,12 @@ def split_data(
     X = df[feature_cols]
     y = df[target_col]
 
-    split_idx = int(len(df) * (1 - test_ratio))
-    X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
-    y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_ratio, shuffle=True, random_state=42
+    )
 
     logger.info(
-        "Split data: train=%d, test=%d (%.0f%% test)",
+        "Split data (random shuffle): train=%d, test=%d (%.0f%% test)",
         len(X_train), len(X_test), test_ratio * 100
     )
     return X_train, X_test, y_train, y_test

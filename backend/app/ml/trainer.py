@@ -128,16 +128,26 @@ class Trainer:
                     f"need at least {min_lstm_samples} (lookback={lookback} + 20 sequences)"
                 )
 
-            # Scale features
-            X_train_scaled, X_test_scaled, feature_scaler = scale_data(X_train, X_test)
+            from sklearn.model_selection import train_test_split
+            from sklearn.preprocessing import RobustScaler, MinMaxScaler
 
-            # Scale target separately (for inverse transform)
-            y_train_scaled, target_scaler = create_target_scaler(y_train)
-            y_test_scaled = target_scaler.transform(y_test.values.reshape(-1, 1)).flatten()
+            # Scale entire chronological dataset first since X_train is already shuffled
+            X_all = featured_df.drop(columns=[target_col])
+            y_all = featured_df[target_col]
 
-            # Create sequences
-            X_train_seq, y_train_seq = create_sequences(X_train_scaled, y_train_scaled, lookback)
-            X_test_seq, y_test_seq = create_sequences(X_test_scaled, y_test_scaled, lookback)
+            feature_scaler = RobustScaler()
+            X_all_scaled = feature_scaler.fit_transform(X_all)
+
+            target_scaler = MinMaxScaler(feature_range=(0, 1))
+            y_all_scaled = target_scaler.fit_transform(y_all.values.reshape(-1, 1)).flatten()
+
+            # Create sequences from the chronological scaled data
+            X_all_seq, y_all_seq = create_sequences(X_all_scaled, y_all_scaled, lookback)
+
+            # Random shuffle split the sequences
+            X_train_seq, X_test_seq, y_train_seq, y_test_seq = train_test_split(
+                X_all_seq, y_all_seq, test_size=0.2, shuffle=True, random_state=42
+            )
 
             if len(X_train_seq) < 30:
                 raise ValueError(
