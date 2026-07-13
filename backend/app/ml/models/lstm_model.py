@@ -1,25 +1,56 @@
-"""
-StockVision AI - LSTM Model
-
-Deep learning model using Keras/TensorFlow for sequential stock price forecasting.
-Architecture: 3 LSTM layers with Dropout + Dense output.
-"""
-
-import logging
+import torch
+import torch.nn as nn
+import torch.optim as optim
 import numpy as np
+import logging
+import os
 from typing import Optional
 
 logger = logging.getLogger("stockvision.ml.lstm")
 
+class PyTorchLSTM(nn.Module):
+    def __init__(self, input_size, hidden_sizes=[256, 128, 64], output_size=1, dropout=0.2):
+        super(PyTorchLSTM, self).__init__()
+        self.lstm1 = nn.LSTM(input_size, hidden_sizes[0], batch_first=True)
+        self.drop1 = nn.Dropout(dropout)
+        
+        self.lstm2 = nn.LSTM(hidden_sizes[0], hidden_sizes[1], batch_first=True)
+        self.drop2 = nn.Dropout(dropout)
+        
+        self.lstm3 = nn.LSTM(hidden_sizes[1], hidden_sizes[2], batch_first=True)
+        self.drop3 = nn.Dropout(dropout)
+        
+        self.fc1 = nn.Linear(hidden_sizes[2], 16)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(16, output_size)
+        
+    def forward(self, x):
+        # x shape: (batch, seq_len, features)
+        out, _ = self.lstm1(x)
+        out = self.drop1(out)
+        
+        out, _ = self.lstm2(out)
+        out = self.drop2(out)
+        
+        out, _ = self.lstm3(out)
+        out = self.drop3(out)
+        
+        # Take the output from the last time step
+        out = out[:, -1, :]
+        
+        out = self.fc1(out)
+        out = self.relu(out)
+        out = self.fc2(out)
+        return out
 
 class LSTMModel:
-    """LSTM neural network for time-series stock price forecasting."""
+    """LSTM neural network for time-series stock price forecasting using PyTorch."""
 
     def __init__(
         self,
-        lookback: int = 60,
-        epochs: int = 50,
-        batch_size: int = 32,
+        lookback: int = 100,
+        epochs: int = 150,
+        batch_size: int = 128,
         learning_rate: float = 0.001,
     ):
         self.lookback = lookback
@@ -27,37 +58,18 @@ class LSTMModel:
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.model = None
-        self.history = None
+        self.history = {"loss": [], "val_loss": []}
         self.name = "lstm"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def build_model(self, input_shape: tuple) -> None:
         """
-        Build the LSTM architecture.
-
-        Architecture:
-            LSTM(128) → Dropout(0.2) → LSTM(64) → Dropout(0.2)
-            → LSTM(32) → Dropout(0.2) → Dense(16) → Dense(1)
+        Build the PyTorch LSTM architecture.
+        input_shape: (seq_len, features)
         """
-        import tensorflow as tf
-        from tensorflow import keras
-        from tensorflow.keras import layers
-
-        model = keras.Sequential([
-            layers.LSTM(128, return_sequences=True, input_shape=input_shape),
-            layers.Dropout(0.2),
-            layers.LSTM(64, return_sequences=True),
-            layers.Dropout(0.2),
-            layers.LSTM(32, return_sequences=False),
-            layers.Dropout(0.2),
-            layers.Dense(16, activation="relu"),
-            layers.Dense(1),
-        ])
-
-        optimizer = keras.optimizers.Adam(learning_rate=self.learning_rate)
-        model.compile(optimizer=optimizer, loss="mse", metrics=["mae"])
-
-        self.model = model
-        logger.info("Built LSTM model: %s", model.summary(print_fn=lambda x: None) or "OK")
+        features = input_shape[1]
+        self.model = PyTorchLSTM(input_size=features).to(self.device)
+        logger.info("Built PyTorch LSTM model on %s", self.device)
 
     def train(
         self,
@@ -66,74 +78,103 @@ class LSTMModel:
         X_val: Optional[np.ndarray] = None,
         y_val: Optional[np.ndarray] = None,
     ) -> dict:
-        """
-        Train the LSTM model with EarlyStopping.
-
-        Args:
-            X_train: Shape (n_samples, lookback, n_features)
-            y_train: Shape (n_samples,)
-            X_val: Optional validation data
-            y_val: Optional validation targets
-        """
-        from tensorflow.keras.callbacks import EarlyStopping
-
         if self.model is None:
             self.build_model(input_shape=(X_train.shape[1], X_train.shape[2]))
 
-        callbacks = [
-            EarlyStopping(
-                monitor="val_loss" if X_val is not None else "loss",
-                patience=10,
-                restore_best_weights=True,
-                verbose=1,
-            ),
-        ]
+        criterion = nn.MSELoss()
+        optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
-        validation_data = (X_val, y_val) if X_val is not None else None
+        # Convert to tensors
+        X_t = torch.tensor(X_train, dtype=torch.float32).to(self.device)
+        y_t = torch.tensor(y_train, dtype=torch.float32).view(-1, 1).to(self.device)
+        
+        if X_val is not None and y_val is not None:
+            X_v = torch.tensor(X_val, dtype=torch.float32).to(self.device)
+            y_v = torch.tensor(y_val, dtype=torch.float32).view(-1, 1).to(self.device)
+            has_val = True
+        else:
+            has_val = False
+
+        from torch.utils.data import TensorDataset, DataLoader
+        dataset = TensorDataset(X_t, y_t)
+        dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True)
 
         logger.info(
-            "Training LSTM: epochs=%d, batch=%d, samples=%d",
+            "Training PyTorch LSTM: epochs=%d, batch=%d, samples=%d",
             self.epochs, self.batch_size, len(X_train)
         )
 
-        self.history = self.model.fit(
-            X_train,
-            y_train,
-            epochs=self.epochs,
-            batch_size=self.batch_size,
-            validation_data=validation_data,
-            callbacks=callbacks,
-            verbose=1,
-        )
+        best_val_loss = float('inf')
+        patience_counter = 0
+        patience = 10
+        best_model_state = None
+
+        self.history = {"loss": [], "val_loss": []}
+
+        for epoch in range(self.epochs):
+            self.model.train()
+            epoch_loss = 0.0
+            for batch_X, batch_y in dataloader:
+                optimizer.zero_grad()
+                outputs = self.model(batch_X)
+                loss = criterion(outputs, batch_y)
+                loss.backward()
+                optimizer.step()
+                epoch_loss += loss.item() * batch_X.size(0)
+            
+            epoch_loss /= len(X_train)
+            self.history["loss"].append(round(epoch_loss, 6))
+
+            if has_val:
+                self.model.eval()
+                with torch.no_grad():
+                    val_outputs = self.model(X_v)
+                    val_loss = criterion(val_outputs, y_v).item()
+                self.history["val_loss"].append(round(val_loss, 6))
+                
+                # Early stopping
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    patience_counter = 0
+                    best_model_state = self.model.state_dict().copy()
+                else:
+                    patience_counter += 1
+                    if patience_counter >= patience:
+                        logger.info(f"Early stopping at epoch {epoch+1}")
+                        if best_model_state:
+                            self.model.load_state_dict(best_model_state)
+                        break
+
+        # Restore best weights if using early stopping
+        if has_val and best_model_state and patience_counter < patience:
+            self.model.load_state_dict(best_model_state)
 
         result = {
             "model_type": self.name,
             "status": "trained",
-            "epochs_run": len(self.history.history["loss"]),
-            "training_loss": [round(float(v), 6) for v in self.history.history["loss"]],
+            "epochs_run": len(self.history["loss"]),
+            "training_loss": self.history["loss"],
         }
-
-        if "val_loss" in self.history.history:
-            result["validation_loss"] = [round(float(v), 6) for v in self.history.history["val_loss"]]
+        if has_val:
+            result["validation_loss"] = self.history["val_loss"]
 
         return result
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """Generate predictions."""
         if self.model is None:
             raise ValueError("Model not trained or loaded")
-        predictions = self.model.predict(X, verbose=0)
-        return predictions.flatten()
+        self.model.eval()
+        with torch.no_grad():
+            X_t = torch.tensor(X, dtype=torch.float32).to(self.device)
+            outputs = self.model(X_t)
+            return outputs.cpu().numpy().flatten()
 
     def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> dict:
-        """Evaluate model and return metrics."""
         from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-
         y_pred = self.predict(X_test)
         rmse = float(np.sqrt(mean_squared_error(y_test, y_pred)))
         mae = float(mean_absolute_error(y_test, y_pred))
         r2 = float(r2_score(y_test, y_pred))
-
         mask = y_test != 0
         mape = float(np.mean(np.abs((y_test[mask] - y_pred[mask]) / y_test[mask])) * 100) if mask.any() else None
 
@@ -148,14 +189,35 @@ class LSTMModel:
         return metrics
 
     def save(self, path: str) -> None:
-        """Save model to .keras format."""
         if self.model is None:
             raise ValueError("No model to save")
-        self.model.save(path)
-        logger.info("LSTM model saved to %s", path)
+        # Ensure path ends with .pt for PyTorch, but handle caller sending .keras
+        save_path = path
+        if save_path.endswith('.keras'):
+            save_path = save_path[:-6] + '.pt'
+        
+        # Save both state_dict and input dimensions (so we can rebuild it)
+        checkpoint = {
+            'input_size': self.model.lstm1.input_size,
+            'state_dict': self.model.state_dict()
+        }
+        torch.save(checkpoint, save_path)
+        logger.info("LSTM model saved to %s", save_path)
 
     def load(self, path: str) -> None:
-        """Load model from .keras format."""
-        from tensorflow import keras
-        self.model = keras.models.load_model(path)
-        logger.info("LSTM model loaded from %s", path)
+        load_path = path
+        if load_path.endswith('.keras'):
+            load_path = load_path[:-6] + '.pt'
+            
+        if not os.path.exists(load_path):
+             # Fallback if someone passed .pt directly
+            if os.path.exists(path):
+                load_path = path
+            else:
+                raise FileNotFoundError(f"Model file not found at {load_path}")
+
+        checkpoint = torch.load(load_path, map_location=self.device)
+        self.build_model(input_shape=(self.lookback, checkpoint['input_size']))
+        self.model.load_state_dict(checkpoint['state_dict'])
+        self.model.eval()
+        logger.info("LSTM model loaded from %s", load_path)

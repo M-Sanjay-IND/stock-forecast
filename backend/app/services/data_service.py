@@ -109,7 +109,7 @@ class DataService:
 
     @staticmethod
     def fetch_history(
-        ticker: str, period: str = "2y", force_refresh: bool = False
+        ticker: str, period: str = "5y", force_refresh: bool = False
     ) -> pd.DataFrame:
         """
         Fetch historical price data. First checks DB, then Yahoo Finance.

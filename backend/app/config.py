@@ -23,12 +23,12 @@ class Config:
 
     # ML Configuration
     MODEL_CACHE_HOURS = int(os.getenv("MODEL_CACHE_HOURS", "24"))
-    LSTM_EPOCHS = int(os.getenv("LSTM_EPOCHS", "50"))
-    LSTM_LOOKBACK = int(os.getenv("LSTM_LOOKBACK", "60"))
+    LSTM_EPOCHS = int(os.getenv("LSTM_EPOCHS", "150"))
+    LSTM_LOOKBACK = int(os.getenv("LSTM_LOOKBACK", "100"))
     SAVED_MODELS_DIR = os.path.join(BASE_DIR, "..", "saved_models")
 
     # Data Configuration
-    DEFAULT_HISTORY_PERIOD = "2y"
+    DEFAULT_HISTORY_PERIOD = "5y"
     MAX_HISTORY_PERIOD = "10y"
 
     # Cache Configuration
