@@ -6,7 +6,7 @@ import {
   BarChart3,
   TrendingUp,
   GitCompare,
-  Activity,
+  TrainFront,
   Bookmark,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -22,32 +22,40 @@ const navItems = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle, mobileOpen, onMobileClose }) => {
   return (
     <motion.aside
       initial={false}
       animate={{ width: collapsed ? 72 : 240 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="fixed top-0 left-0 h-screen z-40 flex flex-col bg-card/80 backdrop-blur-xl border-r border-border"
+      className={cn(
+        "fixed top-0 left-0 h-screen z-40 flex flex-col bg-card/95 backdrop-blur-xl border-r border-border transition-transform duration-300 md:translate-x-0",
+        mobileOpen ? "translate-x-0 w-64" : "-translate-x-full"
+      )}
+      style={{ width: mobileOpen ? 240 : (collapsed ? 72 : 240) }}
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 h-16 border-b border-border">
-        <motion.div
-          className="flex items-center justify-center w-10 h-10 rounded-xl gradient-primary"
-          whileHover={{ scale: 1.05 }}
-        >
-          <Activity className="w-5 h-5 text-white" />
-        </motion.div>
-        {!collapsed && (
+        {(!collapsed || mobileOpen) ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="overflow-hidden whitespace-nowrap"
           >
-            <h1 className="text-lg font-bold gradient-text">Stock Forecast</h1>
-            <p className="text-[10px] text-muted-foreground -mt-1">AI Forecasting</p>
+            <h1 className="text-xl font-bold gradient-text">Stock Train</h1>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="w-full flex justify-center overflow-hidden"
+          >
+            <h1 className="text-xl font-bold gradient-text">ST</h1>
           </motion.div>
         )}
       </div>
@@ -58,6 +66,7 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
           <NavLink
             key={to}
             to={to}
+            onClick={() => mobileOpen && onMobileClose()}
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group',
@@ -69,11 +78,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
             }
           >
             <Icon className="w-5 h-5 flex-shrink-0" />
-            {!collapsed && (
+            {(!collapsed || mobileOpen) && (
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-sm font-medium"
+                className="text-sm font-medium whitespace-nowrap"
               >
                 {label}
               </motion.span>
@@ -82,10 +91,10 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         ))}
       </nav>
 
-      {/* Collapse toggle */}
+      {/* Collapse toggle (Desktop only) */}
       <button
         onClick={onToggle}
-        className="flex items-center justify-center h-12 border-t border-border text-muted-foreground hover:text-foreground transition-colors"
+        className="hidden md:flex items-center justify-center h-12 border-t border-border text-muted-foreground hover:text-foreground transition-colors"
         aria-label="Toggle sidebar"
       >
         <motion.div

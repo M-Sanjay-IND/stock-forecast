@@ -1,5 +1,5 @@
 """
-StockVision AI - Model Trainer
+Stock Train - Model Trainer
 
 Orchestrates training of all models, compares metrics,
 and identifies the best-performing model for each ticker.

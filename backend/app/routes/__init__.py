@@ -1,5 +1,5 @@
 """
-StockVision AI - Route Registration
+Stock Train - Route Registration
 
 Registers all API blueprints with the Flask application.
 """

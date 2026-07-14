@@ -1,1 +1,1 @@
-"""StockVision AI - Services Package"""
+"""Stock Train - Services Package"""

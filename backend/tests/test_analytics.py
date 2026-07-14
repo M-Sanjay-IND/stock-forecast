@@ -1,5 +1,5 @@
 """
-StockVision AI - Analytics Tests
+Stock Train - Analytics Tests
 
 Tests for the financial analytics computation.
 """

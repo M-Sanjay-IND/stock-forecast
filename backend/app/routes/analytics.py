@@ -1,5 +1,5 @@
 """
-StockVision AI - Analytics Route
+Stock Train - Analytics Route
 """
 
 import logging

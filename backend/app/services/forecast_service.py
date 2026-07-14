@@ -1,5 +1,5 @@
 """
-StockVision AI - Forecast Service
+Stock Train - Forecast Service
 
 Orchestrates the forecast workflow:
 1. Fetch data

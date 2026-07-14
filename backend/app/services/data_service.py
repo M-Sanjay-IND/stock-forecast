@@ -1,5 +1,5 @@
 """
-StockVision AI - Data Service
+Stock Train - Data Service
 
 Fetches stock data from Yahoo Finance, caches in the database,
 and provides a clean interface for other services.

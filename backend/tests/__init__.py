@@ -1,1 +1,1 @@
-"""StockVision AI - Tests Package"""
+"""Stock Train - Tests Package"""

@@ -1,5 +1,5 @@
 """
-StockVision AI - Database Models
+Stock Train - Database Models
 
 SQLAlchemy models for stocks, history, watchlist, and trained models.
 Designed for SQLite with easy migration path to PostgreSQL.

@@ -1,5 +1,5 @@
 """
-StockVision AI - Watchlist Routes
+Stock Train - Watchlist Routes
 """
 
 import logging

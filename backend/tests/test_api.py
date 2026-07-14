@@ -1,5 +1,5 @@
 """
-StockVision AI - API Tests
+Stock Train - API Tests
 
 Tests for REST API endpoints.
 """
@@ -30,7 +30,7 @@ class TestHealthEndpoint:
         assert response.status_code == 200
         data = response.get_json()
         assert data["status"] == "healthy"
-        assert data["service"] == "Stock Forecast"
+        assert data["service"] == "Stock Train"
 
     def test_health_has_version(self, client):
         """Health endpoint should include version."""

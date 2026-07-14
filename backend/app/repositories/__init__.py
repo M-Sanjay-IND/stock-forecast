@@ -1,1 +1,1 @@
-"""StockVision AI - Repositories Package"""
+"""Stock Train - Repositories Package"""

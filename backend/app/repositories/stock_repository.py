@@ -1,5 +1,5 @@
 """
-StockVision AI - Stock Repository
+Stock Train - Stock Repository
 
 Data access layer implementing the Repository Pattern for stock-related
 database operations. Keeps SQL/ORM logic separate from business logic.

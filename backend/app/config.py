@@ -1,5 +1,5 @@
 """
-StockVision AI - Configuration Module
+Stock Train - Configuration Module
 
 Handles environment-based configuration for development, testing, and production.
 """

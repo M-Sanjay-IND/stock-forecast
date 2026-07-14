@@ -1,5 +1,5 @@
 """
-StockVision AI - Technical Analysis Service
+Stock Train - Technical Analysis Service
 
 Computes technical indicators from OHLCV data using the `ta` library and pandas.
 All indicators are computed on a DataFrame and returned as a dict for API response.

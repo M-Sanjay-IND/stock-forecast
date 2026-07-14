@@ -1,5 +1,5 @@
 """
-StockVision AI - Predictor
+Stock Train - Predictor
 
 Loads saved models and generates future price predictions
 with confidence intervals.

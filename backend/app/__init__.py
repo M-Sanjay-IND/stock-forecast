@@ -1,5 +1,5 @@
 """
-StockVision AI - Flask Application Factory
+Stock Train - Flask Application Factory
 
 Creates and configures the Flask application with extensions,
 blueprints, error handlers, and logging.
@@ -33,7 +33,7 @@ def create_app(config_name: str | None = None):
         datefmt="%Y-%m-%d %H:%M:%S",
     )
     logger = logging.getLogger("stockvision")
-    logger.info("Starting StockVision AI (%s)", config_name)
+    logger.info("Starting Stock Train (%s)", config_name)
 
     # Initialize extensions
     CORS(app, resources={r"/*": {"origins": "*"}})

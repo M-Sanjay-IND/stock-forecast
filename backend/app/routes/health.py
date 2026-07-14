@@ -1,5 +1,5 @@
 """
-StockVision AI - Health Check Route
+Stock Train - Health Check Route
 """
 
 from flask import Blueprint, jsonify
@@ -13,7 +13,7 @@ def health_check():
     """Health check endpoint."""
     return jsonify({
         "status": "healthy",
-        "service": "Stock Forecast",
+        "service": "Stock Train",
         "version": "1.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
     })

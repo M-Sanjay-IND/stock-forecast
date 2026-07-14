@@ -1,5 +1,5 @@
 """
-StockVision AI - Linear Regression Model Wrapper
+Stock Train - Linear Regression Model Wrapper
 """
 
 import logging

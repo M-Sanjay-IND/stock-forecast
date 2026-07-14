@@ -1,5 +1,5 @@
 """
-StockVision AI - LSTM Model (PyTorch)
+Stock Train - LSTM Model (PyTorch)
 
 Lightweight 2-layer stacked LSTM for time-series stock price forecasting.
 Architecture sized for typical stock data volumes (~300-500 sequences).

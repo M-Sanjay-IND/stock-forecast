@@ -1,5 +1,5 @@
 """
-StockVision AI - Entry Point
+Stock Train - Entry Point
 
 Run the Flask development server.
 """

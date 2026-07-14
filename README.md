@@ -8,11 +8,11 @@
   <img src="https://img.shields.io/badge/CUDA-RTX_5070_Ti-76B900?style=for-the-badge&logo=nvidia&logoColor=white" />
 </p>
 
-# 📈 Stock Forecast — AI-Powered Stock Forecasting & Financial Analytics Platform
+# 📈 Stock Train — ML-Powered Stock Forecasting & Financial Analytics Platform
 
 A full-stack, production-grade web application for **real-time stock price forecasting**, **financial analytics**, and **interactive charting** — powered by an ensemble of Machine Learning models running on local GPU hardware via a secure ngrok tunnel.
 
-> **Live Frontend:** [stock-forecast-a3enk0tql-sanjay-ms-projects-bedd0557.vercel.app](https://stock-forecast-a3enk0tql-sanjay-ms-projects-bedd0557.vercel.app)
+> **Live Frontend:** [stock-train-a3enk0tql-sanjay-ms-projects-bedd0557.vercel.app](https://stock-train-a3enk0tql-sanjay-ms-projects-bedd0557.vercel.app)
 >
 > **Backend:** Exposed locally via [ngrok](https://ngrok.com) tunnel (see [Architecture](#-architecture--how-it-works) below)
 
@@ -188,7 +188,7 @@ User Requests Forecast
 │                        USER'S BROWSER                          │
 │                                                                 │
 │   Vercel (CDN) ──serves──▶ React Frontend (SPA)                │
-│   stock-forecast-a3enk0tql-sanjay-ms-projects-bedd0557          │
+│   stock-train-a3enk0tql-sanjay-ms-projects-bedd0557             │
 │   .vercel.app                                                   │
 │                                                                 │
 └──────────────────────────┬──────────────────────────────────────┘
@@ -266,8 +266,8 @@ This project uses a **split architecture** where the frontend is deployed to Ver
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/stock-forecast.git
-cd stock-forecast
+git clone https://github.com/your-username/stock-train.git
+cd stock-train
 ```
 
 ### 2. Backend Setup
@@ -389,7 +389,7 @@ All errors return a consistent JSON structure:
 ## 📂 Project Structure
 
 ```
-stock-forecast/
+stock-train/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py              # Flask app factory with CORS

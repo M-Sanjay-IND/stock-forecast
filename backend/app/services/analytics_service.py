@@ -1,5 +1,5 @@
 """
-StockVision AI - Financial Analytics Service
+Stock Train - Financial Analytics Service
 
 Computes financial metrics: returns, risk ratios, drawdown, and more.
 """

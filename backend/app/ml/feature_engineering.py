@@ -1,5 +1,5 @@
 """
-StockVision AI - Feature Engineering
+Stock Train - Feature Engineering
 
 Builds feature matrices from raw OHLCV data combined with technical indicators
 for use in ML model training and prediction.

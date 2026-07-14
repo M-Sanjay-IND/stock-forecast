@@ -1,5 +1,5 @@
 """
-StockVision AI - Stock Routes
+Stock Train - Stock Routes
 
 Handles stock search, info, and historical data endpoints.
 """

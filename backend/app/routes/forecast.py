@@ -1,5 +1,5 @@
 """
-StockVision AI - Forecast & Metrics Routes
+Stock Train - Forecast & Metrics Routes
 """
 
 import logging

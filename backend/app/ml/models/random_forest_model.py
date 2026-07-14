@@ -1,5 +1,5 @@
 """
-StockVision AI - Random Forest Regressor Model Wrapper
+Stock Train - Random Forest Regressor Model Wrapper
 """
 
 import logging

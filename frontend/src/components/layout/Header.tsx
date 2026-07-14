@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Moon, Sun } from 'lucide-react';
+import { Search, X, Moon, Sun, Menu } from 'lucide-react';
 import { useThemeContext } from '../../context/ThemeContext';
 import { useStockContext } from '../../context/StockContext';
 import { searchStocks } from '../../lib/api';
 import type { SearchResult } from '../../types';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onMobileMenuClick?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMobileMenuClick }) => {
   const { theme, toggleTheme } = useThemeContext();
   const { setSelectedTicker, recentSearches } = useStockContext();
   const navigate = useNavigate();
@@ -68,78 +72,90 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-6 bg-background/80 backdrop-blur-xl border-b border-border">
-      {/* Search Bar */}
-      <div className="relative w-full max-w-md" ref={dropdownRef}>
-        <div className="relative flex items-center">
-          <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => query.trim() && setShowDropdown(true)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search stocks... (e.g. AAPL, RELIANCE.NS)"
-            className="w-full h-10 pl-10 pr-10 rounded-lg bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
-          />
-          {query && (
-            <button
-              onClick={() => { setQuery(''); setResults([]); setShowDropdown(false); }}
-              className="absolute right-3 text-muted-foreground hover:text-foreground"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
+    <header className="sticky top-0 z-30 h-16 flex items-center justify-between px-4 md:px-6 bg-background/80 backdrop-blur-xl border-b border-border gap-4">
+      <div className="flex items-center w-full max-w-md gap-3">
+        {onMobileMenuClick && (
+          <button
+            onClick={onMobileMenuClick}
+            className="md:hidden p-2 -ml-2 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+        
+        {/* Search Bar */}
+        <div className="relative w-full" ref={dropdownRef}>
+          <div className="relative flex items-center">
+            <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => query.trim() && setShowDropdown(true)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search stocks..."
+              className="w-full h-10 pl-10 pr-10 rounded-lg bg-secondary/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+            />
+            {query && (
+              <button
+                onClick={() => { setQuery(''); setResults([]); setShowDropdown(false); }}
+                className="absolute right-3 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
-        {/* Dropdown */}
-        <AnimatePresence>
-          {showDropdown && (results.length > 0 || recentSearches.length > 0) && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="absolute top-12 left-0 right-0 bg-card border border-border rounded-xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto"
-            >
-              {results.length > 0 ? (
-                <div className="py-1">
-                  {results.map((r) => (
-                    <button
-                      key={r.ticker}
-                      onClick={() => handleSelect(r.ticker)}
-                      className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-accent/50 transition-colors text-left"
-                    >
-                      <div>
-                        <span className="font-semibold text-sm text-foreground">{r.ticker}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{r.name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-3">
-                  <p className="text-xs text-muted-foreground mb-2 px-1">Recent Searches</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {recentSearches.map((t) => (
+          {/* Dropdown */}
+          <AnimatePresence>
+            {showDropdown && (results.length > 0 || recentSearches.length > 0) && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute top-12 left-0 right-0 bg-card border border-border rounded-xl shadow-2xl overflow-hidden max-h-80 overflow-y-auto"
+              >
+                {results.length > 0 ? (
+                  <div className="py-1">
+                    {results.map((r) => (
                       <button
-                        key={t}
-                        onClick={() => handleSelect(t)}
-                        className="px-3 py-1 text-xs rounded-full bg-secondary text-foreground hover:bg-primary/20 transition-colors"
+                        key={r.ticker}
+                        onClick={() => handleSelect(r.ticker)}
+                        className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-accent/50 transition-colors text-left"
                       >
-                        {t}
+                        <div>
+                          <span className="font-semibold text-sm text-foreground">{r.ticker}</span>
+                          <span className="text-xs text-muted-foreground ml-2">{r.name}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
-                </div>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                ) : (
+                  <div className="p-3">
+                    <p className="text-xs text-muted-foreground mb-2 px-1">Recent Searches</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {recentSearches.map((t) => (
+                        <button
+                          key={t}
+                          onClick={() => handleSelect(t)}
+                          className="px-3 py-1 text-xs rounded-full bg-secondary text-foreground hover:bg-primary/20 transition-colors"
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center flex-shrink-0">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

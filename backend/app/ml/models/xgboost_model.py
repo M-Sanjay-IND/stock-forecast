@@ -1,5 +1,5 @@
 """
-StockVision AI - XGBoost Model Wrapper
+Stock Train - XGBoost Model Wrapper
 
 Falls back to GradientBoosting if XGBoost is not installed.
 """

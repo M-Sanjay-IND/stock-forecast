@@ -1,5 +1,5 @@
 """
-StockVision AI - Data Preprocessing
+Stock Train - Data Preprocessing
 
 Handles scaling, train/test splitting, and sequence creation
 for both traditional ML and LSTM models.

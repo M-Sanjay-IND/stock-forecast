@@ -1,5 +1,5 @@
 """
-StockVision AI - Model Manager
+Stock Train - Model Manager
 
 Manages model lifecycle: checking freshness, loading saved models,
 and deciding whether to retrain or serve cached predictions.

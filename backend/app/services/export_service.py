@@ -1,5 +1,5 @@
 """
-StockVision AI - Export Service
+Stock Train - Export Service
 
 Generates CSV and PDF reports for stock data.
 """
@@ -49,7 +49,7 @@ class ExportService:
             story = []
 
             # Title
-            story.append(Paragraph(f"StockVision AI — {ticker} Report", styles["Title"]))
+            story.append(Paragraph(f"Stock Train — {ticker} Report", styles["Title"]))
             story.append(Spacer(1, 20))
 
             # Stock Info

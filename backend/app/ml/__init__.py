@@ -1,1 +1,1 @@
-"""StockVision AI - ML Package"""
+"""Stock Train - ML Package"""
