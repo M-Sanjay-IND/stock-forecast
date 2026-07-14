@@ -10,11 +10,9 @@
 
 # 📈 Stock Train — ML-Powered Stock Forecasting & Financial Analytics Platform
 
-A full-stack, production-grade web application for **real-time stock price forecasting**, **financial analytics**, and **interactive charting** — powered by an ensemble of Machine Learning models running on local GPU hardware via a secure ngrok tunnel.
+A full-stack, production-grade web application for **real-time stock price forecasting**, **financial analytics**, and **interactive charting** — powered by an ensemble of Machine Learning models running on local GPU hardware.
 
-> **Live Frontend:** [stock-train-a3enk0tql-sanjay-ms-projects-bedd0557.vercel.app](https://stock-train-a3enk0tql-sanjay-ms-projects-bedd0557.vercel.app)
->
-> **Backend:** Exposed locally via [ngrok](https://ngrok.com) tunnel (see [Architecture](#-architecture--how-it-works) below)
+> **Note:** This project is designed to be self-hosted. The backend runs locally for GPU acceleration and can be exposed via an [ngrok](https://ngrok.com) tunnel to serve the frontend (see [Architecture](#-architecture--how-it-works) below).
 
 ---
 
