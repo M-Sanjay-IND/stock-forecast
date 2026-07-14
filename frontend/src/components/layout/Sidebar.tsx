@@ -6,7 +6,6 @@ import {
   BarChart3,
   TrendingUp,
   GitCompare,
-  TrainFront,
   Bookmark,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
